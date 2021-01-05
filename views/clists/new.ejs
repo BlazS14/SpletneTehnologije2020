@@ -1,0 +1,11 @@
+<h2>
+    Novi seznam
+</h2>
+<%- include('../partials/errormessage') %>
+<form action="/clists" method="POST">
+    <%- include('_form_fields') %>
+    <br>
+    <br>
+    <a class="buttondel" href="/clists">Prekliči</a>
+    <button class="buttonsave" type="submit">Ustvari</button>
+</form>

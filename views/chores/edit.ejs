@@ -1,0 +1,12 @@
+<h2>
+    Uredi opravilo iz <%= clist.name %> 
+</h2>
+<%- include('../partials/errormessage') %>
+<form action="/clists/chores/<%= clist.id %>/<%= chore.id %>?_method=PUT" method="POST">
+    <%- include('_form_fields') %>
+    <br>
+    <br>
+    <br>
+    <a class="buttondel" href="/clists/chores/<%= clist.id %>">Prekliči</a>
+    <button class="buttonsave" type="submit">Shrani</button>
+</form>

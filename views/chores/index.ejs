@@ -1,0 +1,52 @@
+<h1><%= clist.name %> </h1>
+<%- include('../partials/errormessage') %>
+<a href="/clists/chores/<%= clist.id %>/new" class="buttonsave">Dodaj opravilo</a>
+<br>
+<br>
+
+    <table style="border-collapse: collapse; width: 100%;">
+            <% chores.forEach(chore => { %> 
+                <% if(chore.reminder - Date.now() < 0 && chore.completed != true && chore.date - Date.now() > 0){%>
+                    <tr class="tr" style="background-color: rgba(228, 179, 17, 0.596);">
+                <% }else if(chore.date - Date.now() < 0 && chore.completed != true){ %>
+                    <tr class="tr" style="background-color: rgba(228, 17, 17, 0.459);">
+                <% }else if(chore.completed == true){ %>
+                    <tr class="tr" style="background-color: rgba(114, 228, 104, 0.459);">
+                <% }else { %>
+                    <tr class="tr">
+                <% } %> 
+                        <td style="font-size: larger; font-weight: bold; width: 25%; padding-left: 5px;">
+
+                            <% if(chore.completed == true){%>
+                                <del>
+                            <% } %>   
+                            <%= chore.name %> 
+                            <% if(chore.completed == true){%>
+                            </del>
+                            <% } %> 
+
+                        </td>
+                        <td style="font-size: small; color: rgb(14, 14, 14); padding-left: 20%;">
+                            <p>REM: <%= chore.reminder.getDate() %>/<%= chore.reminder.getMonth()+1 %>/<%= chore.reminder.getFullYear() %> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp DUE: <%= chore.date.getDate() %>/<%= chore.date.getMonth()+1 %>/<%= chore.date.getFullYear() %></p>
+                        </td>
+                        <td style="font-size: small; color: darkgray; width: 10%;">
+                            <%= chore.tags %> 
+                        </td>
+                        <td>
+                            <form method="POST" action="/clists/chores/<%= clist.id %>/<%= chore.id %>/check/?_method=PUT">
+                                <input class="form-check-input" name="completed " type="checkbox" onChange="this.form.submit()" <% if(chore.completed==true){%><%= 'checked' %> <% } %>  >
+                            </form>
+                        </td>
+                        <td>
+                            <a class="buttongo" href="/clists/chores/<%= clist.id %>/<%= chore.id %>/edit">Uredi</a>
+                        </td>
+                        <td>
+                            <%- include('../partials/deleteform',{
+                                url: `/clists/chores/${clist.id}/${chore.id}`
+                            }) %>
+                        </td>
+                </tr>
+            <% }) %> 
+    </table>
+    
+    

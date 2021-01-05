@@ -1,0 +1,12 @@
+<h2>
+    Novo opravilo v <%= clist.name %> 
+</h2>
+<%- include('../partials/errormessage') %>
+<form action="/clists/chores/<%= clist.id %>" method="POST">
+    <%- include('_form_fields') %>
+    <br>
+    <br>
+    <br>
+    <a class="buttondel" href="/clists/chores/<%= clist.id %>">Prekliči</a>
+    <button class="buttonsave" type="submit">Ustvari</button>
+</form>
