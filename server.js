@@ -5,6 +5,7 @@ if(process.env.NODE_ENV !== 'production')
 
 const express = require('express')
 const app = express()
+const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts')
 const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
@@ -13,6 +14,11 @@ const indexRouter = require('./routes/index')
 const listsRouter = require('./routes/clists')
 const choreRouter = require('./routes/chores')
 
+app.use(session({
+    secret: 'tojeskrivnost',
+    resave: false,
+    saveUninitialized: false
+}));
 app.set('view engine','ejs')
 app.set('views',__dirname+'/views')
 app.set('layout','layouts/layout')

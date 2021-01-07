@@ -21,7 +21,8 @@ router.get('/:id/new',async (req,res) => {
         const clist = await CList.findById(req.params.id)
         const chore = new Chore()
         res.render('chores/new', {chore: chore,clist: clist})
-    }catch{
+    }catch(e){
+        console.error(e)
         res.redirect('/clists/', {errorMessage: 'Napaka pri nalaganju opravil!'})
     }
 })
@@ -41,7 +42,8 @@ router.post('/:id',async (req,res) => {
             })
         const newChore = await chore.save()
         res.redirect(`/clists/chores/${clist.id}`)
-    }catch{
+    }catch(e){
+        console.error(e)
         if(clist != null)
         {
             res.render(`chores/new`,{
@@ -65,7 +67,8 @@ router.get('/:id/:idc/edit',async (req,res) => {
         const clist = await CList.findById(req.params.id)
         const chore = await Chore.findById(req.params.idc)
         res.render('chores/edit', {chore: chore,clist: clist})
-    }catch{
+    }catch(e){
+        console.error(e)
         res.redirect('/clists/', {errorMessage: 'Napaka pri nalaganju opravil!'})
     }
     
@@ -84,7 +87,8 @@ router.put('/:id/:idc',async (req,res) => {
         newChore.reminder = req.body.reminder
         chore = await newChore.save()
         res.redirect(`/clists/chores/${clist.id}`)
-    } catch {
+    } catch (e){
+        console.error(e)
         if(clist==null && chore == null){
             res.redirect('/clists/index')
         }else if(clist != null && chore == null){
@@ -114,7 +118,8 @@ router.put('/:id/:idc/check',async (req,res) => {
         console.debug(newChore)
         chore = await newChore.save()
         res.redirect(`/clists/chores/${clist.id}`)
-    } catch {
+    } catch (e){
+        console.error(e)
         if(clist==null){
             res.redirect('/clists/index')
         }else if(clist != null){
@@ -130,7 +135,8 @@ router.delete('/:id/:idc',async (req,res) => {
         const chore = await Chore.findById(req.params.idc)
         await chore.remove()
         res.redirect(`/clists/chores/${clist.id}`)
-    } catch {
+    } catch (e){
+        console.error(e)
         if(clist==null){
             res.redirect('/')
         }else{

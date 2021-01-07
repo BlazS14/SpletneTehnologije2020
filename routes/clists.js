@@ -3,12 +3,17 @@ const { Mongoose } = require('mongoose')
 const router = express.Router()
 const CList = require('../models/clist')
 const Chore = require('../models/chore')
+const User = require('../models/user')
+const user = require('../models/user')
 
 router.get('/',async (req,res) => {
     try{
-        const clist = await CList.find({})
+        console.debug(req.session.name)
+        sesh = req.session;
+        const clist = await CList.find({user: sesh.userid})
         res.render('clists/index', {clist: clist})
-    }catch{
+    }catch(e){
+        console.error(e)
         res.redirect('clists/index', {clist: clist,errorMessage: 'Napaka pri nalaganju opravil!'})
     }
 })
@@ -25,7 +30,8 @@ router.post('/',async (req,res) => {
     try {
         const newCList = await clist.save()
         res.redirect(`/clists/chores/${newCList.id}`)
-    } catch {
+    } catch (e){
+        console.error(e)
         res.render('clists/new',{
             clist: clist,
             errorMessage: 'Napaka pri kreaciji seznama!'
@@ -40,7 +46,8 @@ router.get('/:id/edit',async (req,res) => {
         res.render('clists/edit',{ 
             clist: clist
         })
-    }catch{
+    }catch(e){
+        console.error(e)
         res.redirect('/clists/', {clist: clist,errorMessage: 'Napaka pri nalaganju opravila!'})
     }
     
@@ -55,7 +62,8 @@ router.put('/:id',async (req,res) => {
         newClist.tags = req.body.tags
         clist = await newClist.save()
         res.redirect(`/clists/chores/${clist.id}`)
-    } catch {
+    } catch (e){
+        console.error(e)
         if(clist != null)
         {
             clist = await CList.findById(clist.id)
@@ -72,7 +80,8 @@ router.delete('/:id',async (req,res) => {
         clist = await CList.findById(req.params.id)
         await clist.remove()
         res.redirect('/clists/')
-    } catch {
+    } catch (e){
+        console.error(e)
         if(clist==null){
             res.redirect('/')
         }else{

@@ -1,1 +1,15 @@
-nothing here
+<%- include('./partials/errormessage') %>
+<% if(session.name) {%>
+    <br>
+    <br>
+    <h1>Pozdravljeni <%= session.name %>! </h1>
+<% }else { %> 
+    <br>
+    <br>
+    <form action="/" method="POST">
+        <p style="font-size: larger; font-weight: bold;">Nickname</p>
+        <input class="textbox" type="text" name="nickname">
+        <br> 
+    </form>
+<% } %>
+     
