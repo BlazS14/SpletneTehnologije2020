@@ -2,37 +2,28 @@
 <br>
 <br>
 
-
-
-
-
-
-
-<% if(clist.length > 0) { %>
+<% if(rooms.length > 0) { %>
  
 
 <table style="border-collapse: collapse; width: 100%;">
-    <% clist.forEach(clist => { %>  
+    <% rooms.forEach(rooms => { %>  
         <tr class="tr">
                 <td style="font-size: larger; font-weight: bold; width: 45%; padding-left: 5px;">
-                    <%= clist.name %>  
+                    <%= rooms.name %>  
                 </td>
                 <td style="font-size: small; color: darkgray; width: 25%;">
-                    <%= clist.tags %> 
+                    <%= rooms.users.length %>/4
                 </td>
                 <td>
-                    <a class="buttonsave" href="/clists/chores/<%= clist.id %>">Odpri</a>
-                </td>
-                <td>
-                    <a class="buttongo" href="/clists/<%= clist.id %>/edit">Uredi</a>
+                    <a class="buttonsave" href="/rooms/<%= rooms.id %>">Pridruži</a>
                 </td>
                 <td>
                     <%- include('../partials/deleteform',{
-                        url: `/clists/${clist.id}`
+                        url: `/rooms/${rooms.id}`
                     }) %>
                 </td>
         </tr>
-    <% }) %> 
+    <% }) %>
 </table>
 <% } %>
  

@@ -1,0 +1,11 @@
+<h2>
+    Nova soba
+</h2>
+<%- include('../partials/errormessage') %>
+<form action="/rooms" method="POST">
+    <%- include('_form_fields') %>
+    <br>
+    <br>
+    <a class="buttondel" href="/rooms">Prekliči</a>
+    <button class="buttonsave" type="submit">Ustvari</button>
+</form>

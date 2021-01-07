@@ -1,14 +1,19 @@
 <%- include('./partials/errormessage') %>
-<% if(session.name) {%>
+<% if(session.user) {%>
     <br>
     <br>
-    <h1>Pozdravljeni <%= session.name %>! </h1>
+    <h1>Pozdravljeni <%= session.user.name %>! </h1>
+    <form method="POST" action="/?_method=DELETE">
+        <button class="buttondel" type="submit">Odjavi</button>
+    </form>
+
 <% }else { %> 
     <br>
     <br>
     <form action="/" method="POST">
         <p style="font-size: larger; font-weight: bold;">Nickname</p>
         <input class="textbox" type="text" name="nickname">
+        <button class="buttonsave" type="submit">Prijava</button>
         <br> 
     </form>
 <% } %>

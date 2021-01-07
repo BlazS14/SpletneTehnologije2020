@@ -13,6 +13,7 @@ const methodOverride = require('method-override')
 const indexRouter = require('./routes/index')
 const listsRouter = require('./routes/clists')
 const choreRouter = require('./routes/chores')
+const roomRouter = require('./routes/rooms')
 
 app.use(session({
     secret: 'tojeskrivnost',
@@ -37,5 +38,6 @@ db.once('open',error => console.error('Connected to Mongoose'))
 app.use('/',indexRouter)
 app.use('/clists',listsRouter)
 app.use('/clists/chores',choreRouter)
+app.use('/rooms',roomRouter)
 
 app.listen(process.env.PORT || 3000)

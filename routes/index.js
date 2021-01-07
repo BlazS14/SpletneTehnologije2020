@@ -13,13 +13,13 @@ router.post('/',async (req,res) => {
     })
     let session = req.session
     try {
-        let loadUser = await User.find({name: user.name})
-        if(loadUser.length == 0){
+        let loadUser = await User.findOne({name: user.name})
+        if(!loadUser){
             loadUser = await user.save()
         }
 
 
-        req.session.name = loadUser.name
+        req.session.user = loadUser
         
         res.redirect(`/clists`)
     } catch (e){
@@ -30,6 +30,11 @@ router.post('/',async (req,res) => {
         }) 
     }
 
+})
+
+router.delete('/',async (req,res) => {
+        req.session.user = null
+        res.render('index', {session: req.session})
 })
 
 module.exports = router

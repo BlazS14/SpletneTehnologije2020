@@ -8,20 +8,38 @@ const chore = require('../models/chore')
 
 router.get('/:id',async (req,res) => {
    try{
+    sesh = req.session;
+    if(!sesh.user)
+    {
+       res.render('index',{
+           session: sesh,
+           errorMessage: 'Access denied!'
+       })
+       //throw new Error('Missing session user')
+    }else{
         const clist = await CList.findById(req.params.id)
         const chores = await Chore.find({clist: clist.id})
         res.render('chores/index', {chores: chores, clist: clist})
-    }catch{
+    }}catch{
         res.redirect('/clists/', {clist: clist,errorMessage: 'Napaka pri nalaganju opravil!'})
     }
 })
 
 router.get('/:id/new',async (req,res) => {
     try{
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
         const clist = await CList.findById(req.params.id)
         const chore = new Chore()
         res.render('chores/new', {chore: chore,clist: clist})
-    }catch(e){
+    }}catch(e){
         console.error(e)
         res.redirect('/clists/', {errorMessage: 'Napaka pri nalaganju opravil!'})
     }
@@ -31,6 +49,15 @@ router.post('/:id',async (req,res) => {
     let clist
     let chore
     try{
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
         clist = await CList.findById(req.params.id)
         chore = new Chore({
             name: req.body.name,
@@ -42,7 +69,7 @@ router.post('/:id',async (req,res) => {
             })
         const newChore = await chore.save()
         res.redirect(`/clists/chores/${clist.id}`)
-    }catch(e){
+    }}catch(e){
         console.error(e)
         if(clist != null)
         {
@@ -64,10 +91,19 @@ router.post('/:id',async (req,res) => {
 
 router.get('/:id/:idc/edit',async (req,res) => {
     try{
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
         const clist = await CList.findById(req.params.id)
         const chore = await Chore.findById(req.params.idc)
         res.render('chores/edit', {chore: chore,clist: clist})
-    }catch(e){
+    }}catch(e){
         console.error(e)
         res.redirect('/clists/', {errorMessage: 'Napaka pri nalaganju opravil!'})
     }
@@ -78,6 +114,15 @@ router.put('/:id/:idc',async (req,res) => {
     let clist = new CList()
     let chore = new Chore()
     try {
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
         clist = await CList.findById(req.params.id)
         chore = await Chore.findById(req.params.idc)
         const newChore = chore
@@ -87,7 +132,7 @@ router.put('/:id/:idc',async (req,res) => {
         newChore.reminder = req.body.reminder
         chore = await newChore.save()
         res.redirect(`/clists/chores/${clist.id}`)
-    } catch (e){
+    }} catch (e){
         console.error(e)
         if(clist==null && chore == null){
             res.redirect('/clists/index')
@@ -109,6 +154,15 @@ router.put('/:id/:idc/check',async (req,res) => {
     let clist = new CList()
     let chore = new Chore()
     try {
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
         clist = await CList.findById(req.params.id)
         chore = await Chore.findById(req.params.idc)
         const newChore = chore
@@ -118,7 +172,7 @@ router.put('/:id/:idc/check',async (req,res) => {
         console.debug(newChore)
         chore = await newChore.save()
         res.redirect(`/clists/chores/${clist.id}`)
-    } catch (e){
+    }} catch (e){
         console.error(e)
         if(clist==null){
             res.redirect('/clists/index')
@@ -131,11 +185,20 @@ router.put('/:id/:idc/check',async (req,res) => {
 router.delete('/:id/:idc',async (req,res) => {
     let clist
     try {
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
         const clist = await CList.findById(req.params.id)
         const chore = await Chore.findById(req.params.idc)
         await chore.remove()
         res.redirect(`/clists/chores/${clist.id}`)
-    } catch (e){
+    }} catch (e){
         console.error(e)
         if(clist==null){
             res.redirect('/')

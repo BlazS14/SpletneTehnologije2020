@@ -4,11 +4,11 @@ const router = express.Router()
 const CList = require('../models/clist')
 const Chore = require('../models/chore')
 const User = require('../models/user')
-const user = require('../models/user')
+const Room = require('../models/room')
 
 router.get('/',async (req,res) => {
     let user = new User(req.session.user)
-    let clist = new CList()
+    let rooms
     try{
         sesh = req.session;
         if(!sesh.user)
@@ -19,12 +19,12 @@ router.get('/',async (req,res) => {
            })
            //throw new Error('Missing session user')
         }else{
-        clist = await CList.find({user: user.id})
-        res.render('clists/index', {clist: clist})
+        rooms = await Room.find({})
+        res.render('rooms/index', {rooms: rooms})
     }
     }catch(e){
         console.error(e)
-        res.render('clists/index', {clist: clist,errorMessage: 'Napaka pri nalaganju opravil!'})
+        res.render('rooms/index', {clist: clist,errorMessage: 'Napaka pri nalaganju opravil!'})
     }
 })
 
@@ -38,15 +38,13 @@ router.get('/new',(req,res) => {
            })
            //throw new Error('Missing session user')
         }else{
-    res.render('clists/new',{ clist: new CList()})
+    res.render('rooms/new',{ rooms: new Room()})
 }})
 
 router.post('/',async (req,res) => {
     let user = new User(req.session.user)
-    const clist = new CList({
+    const room = new Room({
         name: req.body.name,
-        tags: req.body.tags,
-        user: user.id
     })
     try {
         sesh = req.session;
@@ -58,19 +56,19 @@ router.post('/',async (req,res) => {
            })
            //throw new Error('Missing session user')
         }else{
-        const newCList = await clist.save()
-        res.redirect(`/clists/chores/${newCList.id}`)
+        const newRoom = await room.save()
+        res.redirect(`/rooms/${room.id}`)
     }} catch (e){
         console.error(e)
-        res.render('clists/new',{
-            clist: clist,
+        res.render('rooms/new',{
+            room: rooms,
             errorMessage: 'Napaka pri kreaciji seznama!'
         }) 
     }
 
 })
 
-router.get('/:id/edit',async (req,res) => {
+router.get('/:id',async (req,res) => {
     try{
         sesh = req.session;
         if(!sesh.user)
@@ -81,9 +79,9 @@ router.get('/:id/edit',async (req,res) => {
            })
            //throw new Error('Missing session user')
         }else{
-        const clist = await CList.findById(req.params.id)
-        res.render('clists/edit',{ 
-            clist: clist
+        const room = await Room.findById(req.params.id)
+        res.render('rooms/room',{ 
+            rooms: room
         })
     }}catch(e){
         console.error(e)
