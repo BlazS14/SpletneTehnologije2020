@@ -1,0 +1,38 @@
+<br>
+<%- include('../partials/errormessage') %>
+<br>
+<% if(user) { %>
+<h1><%= user.name %> </h1>
+<br>
+<br>
+
+<table style="border-collapse: collapse; width: 25%;">
+            <tr class="tr">
+                <td style="font-size: larger; font-weight: bold; width: 20%; padding-left: 5px;">
+                    Število iger: <%= user.gamesplayed %>  
+                </td>
+                <td style="font-size: larger; font-weight: bold; width: 20%; padding-left: 5px;">
+                    Število zmag: <%= user.gameswon %>  
+                </td>
+            </tr>
+            <tr class="tr">
+                <td style="font-size: larger; font-weight: bold; width: 20%; padding-left: 5px;">
+                    1. mesto: <%= user.place1 %>  
+                </td>
+                <td style="font-size: larger; font-weight: bold; width: 20%; padding-left: 5px;">
+                    2. mesto: <%= user.place2 %>  
+                </td>
+            </tr>
+            <tr class="tr">
+                <td style="font-size: larger; font-weight: bold; width: 20%; padding-left: 5px;">
+                    3. mesto: <%= user.place3 %>  
+                </td>
+                <td style="font-size: larger; font-weight: bold; width: 20%; padding-left: 5px;">
+                    4. mesto: <%= user.place4 %>  
+                </td>
+            </tr>
+</table>
+
+
+<% } %>
+ 

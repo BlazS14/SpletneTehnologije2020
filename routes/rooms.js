@@ -28,6 +28,79 @@ router.get('/',async (req,res) => {
     }
 })
 
+router.get('/users',async (req,res) => {
+    let user = new User(req.session.user)
+    let users
+    try{
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
+        users = await User.find({})
+        res.render('rooms/users', {users: users})
+    }
+    }catch(e){
+        console.error(e)
+        res.render('rooms/index', {clist: clist,errorMessage: 'Napaka pri nalaganju uporabnikov!'})
+    }
+})
+
+router.delete('/users/profile/:id',async (req,res) => {
+    let user
+    try {
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
+            user = await User.findById(req.params.id)
+        await user.remove()
+        res.redirect('/rooms/users')
+    }} catch (e){
+        console.error(e)
+        if(!user){
+            res.redirect('/')
+        }else{
+                res.redirect(`rooms/users`) 
+        }
+
+    }
+})
+
+router.get('/users/profile/:id',async (req,res) => {
+    let user
+    try {
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
+            user = await User.findById(req.params.id)
+            res.render('rooms/profile',{user: user})
+    }} catch (e){
+        console.error(e)
+        if(!user){
+            res.redirect('/')
+        }else{
+                res.redirect(`rooms/users`) 
+        }
+
+    }
+})
+
 router.get('/new',(req,res) => {
     sesh = req.session;
         if(!sesh.user)
@@ -57,7 +130,7 @@ router.post('/',async (req,res) => {
            //throw new Error('Missing session user')
         }else{
         const newRoom = await room.save()
-        res.redirect(`/rooms/${room.id}`)
+        res.redirect(`/rooms/games/${room.id}`)
     }} catch (e){
         //console.error(e)
         res.render('rooms/new',{

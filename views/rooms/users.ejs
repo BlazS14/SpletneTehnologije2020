@@ -1,0 +1,26 @@
+<%- include('../partials/errormessage') %>
+<br>
+<br>
+
+<% if(users.length > 0) { %>
+ 
+
+<table style="border-collapse: collapse; width: 100%;">
+    <% users.forEach(users => { %>  
+        <tr class="tr">
+                <td style="font-size: larger; font-weight: bold; width: 80%; padding-left: 5px;">
+                    <%= users.name %>  
+                </td>
+                <td>
+                    <a class="buttonsave" href="/rooms/users/profile/<%= users.id %>">Odpri</a>
+                </td>
+                <td>
+                    <%- include('../partials/deleteform',{
+                        url: `/rooms/users/profile/${users.id}`
+                    }) %>
+                </td>
+        </tr>
+    <% }) %>
+</table>
+<% } %>
+ 

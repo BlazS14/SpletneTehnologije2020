@@ -14,6 +14,7 @@ const indexRouter = require('./routes/index')
 const listsRouter = require('./routes/clists')
 const choreRouter = require('./routes/chores')
 const roomRouter = require('./routes/rooms')
+const gameRouter = require('./routes/games')
 
 app.use(session({
     secret: 'tojeskrivnost',
@@ -39,5 +40,6 @@ app.use('/',indexRouter)
 app.use('/clists',listsRouter)
 app.use('/clists/chores',choreRouter)
 app.use('/rooms',roomRouter)
+app.use('/rooms/games',gameRouter)
 
 app.listen(process.env.PORT || 3000)
