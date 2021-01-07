@@ -59,9 +59,9 @@ router.post('/',async (req,res) => {
         const newRoom = await room.save()
         res.redirect(`/rooms/${room.id}`)
     }} catch (e){
-        console.error(e)
+        //console.error(e)
         res.render('rooms/new',{
-            room: rooms,
+            rooms: room,
             errorMessage: 'Napaka pri kreaciji seznama!'
         }) 
     }
@@ -90,7 +90,7 @@ router.get('/:id',async (req,res) => {
     
 })
 
-router.put('/:id',async (req,res) => {
+/*router.put('/:id',async (req,res) => {
     let clist
     try {
         sesh = req.session;
@@ -118,10 +118,10 @@ router.put('/:id',async (req,res) => {
             res.redirect('/clist')
         }
     }
-})
+})*/
 
 router.delete('/:id',async (req,res) => {
-    let clist
+    let room
     try {
         sesh = req.session;
         if(!sesh.user)
@@ -132,16 +132,16 @@ router.delete('/:id',async (req,res) => {
            })
            //throw new Error('Missing session user')
         }else{
-        clist = await CList.findById(req.params.id)
-        await clist.remove()
-        res.redirect('/clists/')
+            room = await Room.findById(req.params.id)
+        await room.remove()
+        res.redirect('/rooms/')
     }} catch (e){
         console.error(e)
-        if(clist==null){
+        if(!room){
             res.redirect('/')
         }else{
-                res.render(`/clists/${clist.id}`,{
-                clist: clist,
+                res.render(`/rooms/${room.id}`,{
+                    room: room,
                 errorMessage: 'Napaka pri brisanju seznama!'
             }) 
         }

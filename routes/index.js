@@ -10,6 +10,12 @@ router.get('/',(req,res) => {
 router.post('/',async (req,res) => {
     let user =new User({
         name: req.body.nickname,
+        gamesplayed: 0,
+        gameswon: 0,
+        place1: 0,
+        place2: 0,
+        place3: 0,
+        place4: 0
     })
     let session = req.session
     try {
