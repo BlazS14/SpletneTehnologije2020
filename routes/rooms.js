@@ -19,7 +19,16 @@ router.get('/',async (req,res) => {
            })
            //throw new Error('Missing session user')
         }else{
+
+
+        
+
         rooms = await Room.find({})
+        rooms.forEach( async room => {
+            var tmp = await User.find({roomid: room.id})
+            room.playernum = tmp.length
+            await room.save()
+        });
         res.render('rooms/index', {rooms: rooms})
     }
     }catch(e){
@@ -88,6 +97,7 @@ router.get('/users/profile/:id',async (req,res) => {
            })
            //throw new Error('Missing session user')
         }else{
+
             user = await User.findById(req.params.id)
             res.render('rooms/profile',{user: user})
     }} catch (e){
@@ -118,6 +128,7 @@ router.post('/',async (req,res) => {
     let user = new User(req.session.user)
     const room = new Room({
         name: req.body.name,
+        playernum: 0
     })
     try {
         sesh = req.session;
@@ -135,7 +146,7 @@ router.post('/',async (req,res) => {
         //console.error(e)
         res.render('rooms/new',{
             rooms: room,
-            errorMessage: 'Napaka pri kreaciji seznama!'
+            errorMessage: 'Napaka pri kreaciji sobe!'
         }) 
     }
 
@@ -158,7 +169,7 @@ router.get('/:id',async (req,res) => {
         })
     }}catch(e){
         console.error(e)
-        res.redirect('/clists/', {clist: clist,errorMessage: 'Napaka pri nalaganju opravila!'})
+        res.redirect('/rooms')
     }
     
 })
@@ -215,7 +226,7 @@ router.delete('/:id',async (req,res) => {
         }else{
                 res.render(`/rooms/${room.id}`,{
                     room: room,
-                errorMessage: 'Napaka pri brisanju seznama!'
+                errorMessage: 'Napaka pri brisanju sobe!'
             }) 
         }
 

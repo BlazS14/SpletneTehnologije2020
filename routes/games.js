@@ -1,10 +1,56 @@
 const express = require('express')
 const { Mongoose } = require('mongoose')
 const router = express.Router()
+const CList = require('../models/clist')
+const Chore = require('../models/chore')
 const User = require('../models/user')
+const Room = require('../models/room')
 
-router.get('/:id',(req,res) => {
-    res.send('WIP AL KEEEEEEEE' + req.params.id)
+router.get('/:id',async (req,res) => {
+    let users
+    let room
+    try{
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
+        let user = new User(req.session.user)
+        room = await Room.findById(req.params.id)
+        user = await User.findById(user.id)
+        user.roomid = req.params.id
+        await user.save()
+        users = await User.find({roomid: req.params.id})
+        /*let arr = []
+        if(users[0])
+        {
+            arr.push(new User(User.findById(users[0])))
+        }
+        if(users[1])
+        {
+            arr.push(new User(User.findById(users[1])))
+        }
+        if(users[2])
+        {
+            arr.push(new User(User.findById(users[2])))
+        }
+        if(users[3])
+        {
+            arr.push(new User(User.findById(users[3])))
+        }*/
+
+
+
+        res.render('games/index', {users: users})
+    }
+    }catch(e){
+        console.error(e)
+        res.redirect('/')
+    }
 })
 
 router.post('/',async (req,res) => {
@@ -38,9 +84,54 @@ router.post('/',async (req,res) => {
 
 })
 
+
 router.delete('/',async (req,res) => {
-        req.session.user = null
-        res.render('index', {session: req.session})
+    let user
+    try {
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
+            user = new User(req.session.user)
+            user = await User.findById(user.id)
+            user.roomid = null
+            await user.save()
+            res.redirect('/rooms/index')
+        }
+        }catch(e){
+            console.error(e)
+            res.redirect('/')
+        }
+    })
+
+router.delete('/',async (req,res) => {
+    let users
+    let room
+    try{
+        sesh = req.session;
+        if(!sesh.user)
+        {
+           res.render('index',{
+               session: sesh,
+               errorMessage: 'Access denied!'
+           })
+           //throw new Error('Missing session user')
+        }else{
+        let user = new User(req.session.user)
+        user = await User.findById(user.id)
+        user.roomid = null
+        await user.save()
+        res.redirect('/rooms/index')
+    }
+    }catch(e){
+        console.error(e)
+        res.redirect('/')
+    }
 })
 
 module.exports = router

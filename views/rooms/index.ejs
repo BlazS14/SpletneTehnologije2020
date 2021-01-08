@@ -4,7 +4,7 @@
 
 <% if(rooms.length > 0) { %>
  
-
+<div class="game"></div>
 <table style="border-collapse: collapse; width: 100%;">
     <% rooms.forEach(rooms => { %>  
         <tr class="tr">
@@ -12,10 +12,12 @@
                     <%= rooms.name %>  
                 </td>
                 <td style="font-size: small; color: darkgray; width: 25%;">
-                    <%= rooms.users.length %>/4
+                    <%= rooms.playernum %>/4
                 </td>
                 <td>
+                    <% if(rooms.playernum < 4) { %>
                     <a class="buttonsave" href="/rooms/games/<%= rooms.id %>">Pridruži</a>
+                    <% } %> 
                 </td>
                 <td>
                     <%- include('../partials/deleteform',{

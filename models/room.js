@@ -5,10 +5,9 @@ const roomSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    users: [{
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    }]
+    playernum: {
+        type: Number
+    }
 })
 
 module.exports = mongoose.model('Room',roomSchema)

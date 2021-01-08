@@ -31,7 +31,10 @@ const userSchema = new mongoose.Schema({
     },
     figs: [{
         type: Number
-    }]
+    }],
+    roomid: {
+        type: mongoose.Schema.Types.ObjectId
+    }
 })
 
 module.exports = mongoose.model('User',userSchema)
