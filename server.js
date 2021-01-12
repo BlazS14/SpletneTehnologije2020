@@ -6,18 +6,31 @@ if(process.env.NODE_ENV !== 'production')
 const express = require('express')
 const app = express()
 const session = require('express-session');
+var MemoryStore = require('memorystore')(session)
+var cookie = require("cookies");
+var ios = require('socket.io-express-session');
+
+
+
+
 const io = require("socket.io")(4000, {
     cors: {
       origin: "*",
       methods: ["GET", "POST"]
     }
-  });
+  })
+
+
+
+
+
+
+
 const expressLayouts = require('express-ejs-layouts')
 const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 var sharedsession = require("express-socket.io-session")
 var RedisStore = require("connect-redis")(session);
-
 
 //const cors = require('cors')
 
@@ -28,9 +41,13 @@ const roomRouter = require('./routes/rooms')
 const gameRouter = require('./routes/games')
 
 const sessionMiddleware = session({
+  cookie: { maxAge: 86400000 },
+    store: new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     secret: 'tojeskrivnost',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
 })
 
 app.use(sessionMiddleware)
@@ -61,7 +78,7 @@ app.use(express.static('public'))
 app.listen(process.env.PORT || 3000)
 
 
-
+io.use(ios(sessionMiddleware))
 io.use(function(socket, next) {
     sessionMiddleware(socket.request, socket.request.res || {}, next);
 });
@@ -69,13 +86,27 @@ io.use(function(socket, next) {
 
 
 
+
+
+
+
+const CList = require('./models/clist')
+const Chore = require('./models/chore')
+const User = require('./models/user')
+const Room = require('./models/room')
+
+
 io.on('connection',socket => {
     socket.emit('init-msg',{msg: 'hellou'})
 
-    socket.on('gameinit-msg',data => {
+    socket.on('auth',async data => {
        
-        /*console.debug(data.msg)  
-        console.debug(socket.request.session.user)*/
+        var cookief = socket.handshake.headers.cookie; 
+        //var cookies = cookie.parse(socket.handshake.headers.cookie);
+        let  user = await User.findById(data.userid);
+
+        console.debug(user)  
+        //console.debug(socket.request.session.user)
     })
 
 })
@@ -93,7 +124,7 @@ io.on('connection',socket => {
 
 
 
-
+/*
 const state = {};
 const clientRooms = {};
 
@@ -188,4 +219,4 @@ function emitGameState(room, gameState) {
 function emitGameOver(room, winner) {
   io.sockets.in(room)
     .emit('gameOver', JSON.stringify({ winner }));
-}
+}*/

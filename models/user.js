@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema({
     }],
     roomid: {
         type: mongoose.Schema.Types.ObjectId
+    },
+    session: {
+        type: String
     }
 })
 

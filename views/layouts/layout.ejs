@@ -9,6 +9,250 @@
     <script defer src="/gamescript.js"></script>
 
     <style>
+        .buttongame {
+            background-color: rgba(255, 255, 255,0.4);
+            border: solid;
+            color: rgb(40, 63, 192);
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 2vw;   
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: bolder;
+        }
+        .buttongame:hover {
+            background-color: rgba(255, 255, 255,0.7);
+            border: solid;
+            color: rgb(40, 63, 192);
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 2vw;   
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: bolder;
+        }
+        .buttongamedisabled {
+            background-color: rgba(255, 255, 255, 0.253);
+            border: solid;
+            color: rgba(40, 63, 192, 0.253);
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 2vw;   
+            margin: 4px 2px;
+            border-radius: 12px;
+            font-weight: bolder;
+            pointer-events: none;
+        }
+
+        .scoreboard{
+            width: 90%;
+            border-collapse: collapse;
+        }
+        .scoreboard td{
+            width: 2%;
+            position: relative;
+        }
+        .scoreboard td:after {
+            content: '';
+            display: block;
+            margin-top: 25%;
+        }
+        .scoreboard td .redscore {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(219, 116, 142, 0.548);
+            font-size: 4vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .scoreboard td .bluescore {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(83, 96, 211, 0.5);
+            font-size: 4vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .scoreboard td .yellowscore {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(214, 196, 96, 0.479);
+            font-size: 4vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .scoreboard td .greenscore {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(89, 180, 81, 0.507);
+            font-size: 4vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+
+        .gametable{
+            width: 90%;
+            border-collapse: collapse;
+        }
+        .gametable td{
+            width: 2%;
+            position: relative;
+        }
+        .gametable td:after {
+            content: '';
+            display: block;
+            margin-top: 100%;
+        }
+        .gametable td .none {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .neutral {
+            border: 1px black solid;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.493);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .red {
+            border: 1px black solid;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(219, 116, 142, 0.548);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .yellow {
+            border: 1px black solid;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(214, 196, 96, 0.479);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .blue {
+            border: 1px black solid;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(83, 96, 211, 0.5);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .green {
+            border: 1px black solid;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(89, 180, 81, 0.507);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .redspawn {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(219, 116, 142, 0.548);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .yellowspawn {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(214, 196, 96, 0.479);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .bluespawn {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(83, 96, 211, 0.5);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .greenspawn {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(89, 180, 81, 0.507);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+        .gametable td .middle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0);
+            font-size: 3.5vw;
+            font-family: Calibri;
+            text-align: center;
+        }
+
+        .gametable th{
+            border: 1px solid black;
+        }
         html {
             background: linear-gradient(to bottom right, #949494 0%, #444b64 100%);
             width: 100%;

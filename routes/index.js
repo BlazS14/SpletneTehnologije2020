@@ -15,7 +15,8 @@ router.post('/',async (req,res) => {
         place1: 0,
         place2: 0,
         place3: 0,
-        place4: 0
+        place4: 0,
+        session: req.sessionID
     })
     let session = req.session
     try {
@@ -26,7 +27,9 @@ router.post('/',async (req,res) => {
 
 
         req.session.user = loadUser
-        
+        loadUser.session= req.sessionID
+        await loadUser.save()
+
         res.redirect(`/clists`)
     } catch (e){
         console.error(e)

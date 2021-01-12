@@ -5,8 +5,19 @@ socket.on('init-msg', data => {
 })
 
 if (document.querySelector('.game') !== null) {
-   socket.emit('gameinit-msg',{msg: 'GAME STARTEDDDDDD'})
-   setTimeout(function(){
-    window.location.reload(1);
-    }, 2000);
+
+    let userid = document.getElementById('id').textContent
+
+   socket.emit('auth',{userid: userid})
+
+   
+
+
+   
+}else if (document.querySelector('.lobby') !== null) {
+
+    setTimeout(function(){
+        window.location.reload(1);
+        }, 2000);
+
 }
