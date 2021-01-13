@@ -69,7 +69,7 @@ router.get('/:id',async (req,res) => {
             })
             res.render('games/play', {game: game, user: user})
         }else{
-            res.render('games/index', {users: users})
+            res.render('games/index', {users: users, user: user})
         }
         
     }

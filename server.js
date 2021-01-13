@@ -98,7 +98,7 @@ const Game = require('./models/game')
 
 
 
-io.on('connection',socket => {
+/*io.on('connection',socket => {
     socket.emit('init-msg',{msg: 'hellou'})
 
     socket.on('auth',async data => {
@@ -111,14 +111,16 @@ io.on('connection',socket => {
         socket.join(user.roomid);
         user.socketid= socket.id
         await user.save()
-
+        let size = io.sockets.adapter.rooms.get(user.roomid).size
         //console.debug(socket.request.session.user)
-        if(io.sockets.adapter.rooms.get(user.roomid).size == 4)
+        if(size == 4)
           startGame(users.roomid)
 
     })
 
-})
+
+
+})*/
 
 async function startGame(roomid)
 {
@@ -146,6 +148,40 @@ async function startGame(roomid)
 }
 
 
+var clients = {};
+
+io.sockets.on('connection', function (socket) {
+
+  socket.on('add-user', function(data){
+    let user = User.findById(data.userid)
+
+    clients[data.userid] = {
+      name: user.name,
+      socket: socket.id
+    };
+  });
+
+  socket.on('message', function(data){
+    console.log("Sending: " + data.msg);
+    let user = User.findById(data.userid)
+    if (clients[data.userid]){
+      socket.emit("add-message", {msg: data.msg, username: user.name});
+    } else {
+      console.log("Error in messaging" + data); 
+    }
+  });
+
+  //Removing the socket on disconnect
+  socket.on('disconnect', function() {
+  	for(var name in clients) {
+  		if(clients[name].socket === socket.id) {
+  			delete clients[name];
+  			break;
+  		}
+  	}	
+  })
+
+});
 
 
 
