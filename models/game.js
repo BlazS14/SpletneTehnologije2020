@@ -55,6 +55,9 @@ const gameSchema = new mongoose.Schema({
     gamecounter: {
         type: Number,
         required: true
+    },
+    roll: {
+        type: Number
     }
 })
 

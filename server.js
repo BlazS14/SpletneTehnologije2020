@@ -160,11 +160,19 @@ io.sockets.on('connection', function (socket) {
       name: user.name,
       socket: socket.id
     };
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
   			socket.to(clients[userid].socket).emit("user-connected", {username: clients[data.userid].name});
   		}
     }
+
+    if(user.id == redplayer.id)
+    {
+      socket.emit("roll",{username: user.name});
+    }
+
   });
 
   socket.on('message', async function(data){
@@ -200,6 +208,135 @@ io.sockets.on('connection', function (socket) {
   		}
   	}	
   })
+
+
+
+
+
+
+
+
+  socket.on('do-roll', async function(data){
+    let user = await User.findById(data.userid)
+    let room = await Room.findById(data.roomid)
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
+    let yellowplayer = await User.findById(game.yellowplayer)
+    let blueplayer = await User.findById(game.blueplayer)
+    let greenplayer = await User.findById(game.greenplayer)
+    
+    game.roll = Math.floor(Math.random() * 6) + 1
+    await game.save()
+
+    if(user.id == redplayer.id)
+    {
+      socket.emit("get-roll",{roll: game.roll, figs: game.redpos});
+    }else if(user.id == yellowplayer.id)
+    {
+      socket.emit("get-roll",{roll: game.roll, figs: game.yellowpos});
+    }else if(user.id == blueplayer.id)
+    {
+      socket.emit("get-roll",{roll: game.roll, figs: game.bluepos});
+    }else if(user.id == greenplayer.id)
+    {
+      socket.emit("get-roll",{roll: game.roll, figs: game.greenpos});
+    }
+  });
+
+
+  socket.on('do-spawn', async function(data){
+    let user = await User.findById(data.userid)
+    let room = await Room.findById(data.roomid)
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
+    let yellowplayer = await User.findById(game.yellowplayer)
+    let blueplayer = await User.findById(game.blueplayer)
+    let greenplayer = await User.findById(game.greenplayer)
+
+    if(user.id == redplayer.id)
+    {
+      game.redpos.push(0)
+    }else if(user.id == yellowplayer.id)
+    {
+      game.yellowpos.push(0)
+    }else if(user.id == blueplayer.id)
+    {
+      game.bluepos.push(0)
+    }else if(user.id == greenplayer.id)
+    {
+      game.greenpos.push(0)
+    }
+
+    for(var userid in clients) {
+  		if(clients[userid].roomid === data.roomid) {
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos});
+  		}
+    }
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos});
+  });
+
+
+  socket.on('do-none', async function(data){
+    let user = await User.findById(data.userid)
+    let room = await Room.findById(data.roomid)
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
+    let yellowplayer = await User.findById(game.yellowplayer)
+    let blueplayer = await User.findById(game.blueplayer)
+    let greenplayer = await User.findById(game.greenplayer)
+
+    game.gamecounter++
+    await game.save()
+
+    if(game.gamecounter%4 == 0)
+    {
+      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 1)
+    {
+      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 2)
+    {
+      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 3)
+    {
+      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+    }
+
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 });
 

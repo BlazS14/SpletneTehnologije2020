@@ -33,12 +33,12 @@ if (document.querySelector('.textchat') !== null) {
         var textnode = document.createTextNode(data.username + " just connected!");
         node.appendChild(textnode);
         document.getElementById("messages").appendChild(node);
-   });
+    });
 
    socket.on("user-disconnected", function(data){
     console.log("user disconnected: " + data)
     location.reload()
- });
+    });
 
      function sendMsg(){
         let msg = document.getElementById('message').value
@@ -52,6 +52,33 @@ if (document.querySelector('.textchat') !== null) {
         // Tell the server about it
         return false;
       }
+
+
+
+      socket.on('get-roll',data => {
+        if(data.figs.length == 0 && data.roll != 6)
+        {
+          var node = document.createElement("LI");
+          var textnode = document.createTextNode("ROLL: " + data.roll.toString());
+          node.appendChild(textnode);
+          document.getElementById("messages").appendChild(node);
+          node = document.createElement("LI");
+          textnode = document.createTextNode("Skipping spawn...");
+          node.appendChild(textnode);
+          document.getElementById("messages").appendChild(node);
+        }else{
+          var node = document.createElement("LI");
+          var textnode = document.createTextNode("ROLL: " + data.roll.toString());
+          node.appendChild(textnode);
+          document.getElementById("messages").appendChild(node);
+          node = document.createElement("LI");
+          textnode = document.createTextNode("Choose what to do...");
+          node.appendChild(textnode);
+          document.getElementById("messages").appendChild(node);
+        }
+        //console.log("GOT ROLL" + data.roll)
+        
+       })
 }
 
 
