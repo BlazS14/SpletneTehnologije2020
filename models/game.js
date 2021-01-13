@@ -48,7 +48,14 @@ const gameSchema = new mongoose.Schema({
     }],
     greenpos: [{
         type: Number
-    }]
+    }],
+    roomid: {
+        type: mongoose.Schema.Types.ObjectId
+    },
+    gamecounter: {
+        type: Number,
+        required: true
+    }
 })
 
 module.exports = mongoose.model('Game',gameSchema)

@@ -63,7 +63,9 @@ router.get('/:id',async (req,res) => {
                 redpos: [0,0,0,0],
                 yellowpos: [0,0,0,0],
                 bluepos: [0,0,0,0],
-                greenpos: [0,0,0,0]
+                greenpos: [0,0,0,0],
+                roomid: room.id,
+                gamecounter: 0
             })
             res.render('games/play', {game: game, user: user})
         }else{
@@ -132,30 +134,5 @@ router.delete('/',async (req,res) => {
             res.redirect('/')
         }
     })
-
-router.delete('/',async (req,res) => {
-    let users
-    let room
-    try{
-        sesh = req.session;
-        if(!sesh.user)
-        {
-           res.render('index',{
-               session: sesh,
-               errorMessage: 'Access denied!'
-           })
-           //throw new Error('Missing session user')
-        }else{
-        let user = new User(req.session.user)
-        user = await User.findById(user.id)
-        user.roomid = null
-        await user.save()
-        res.redirect('/rooms/index')
-    }
-    }catch(e){
-        console.error(e)
-        res.redirect('/')
-    }
-})
 
 module.exports = router

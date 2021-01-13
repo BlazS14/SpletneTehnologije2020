@@ -10,6 +10,11 @@ if (document.querySelector('.game') !== null) {
 
    socket.emit('auth',{userid: userid})
 
+   socket.on('roll',data => {
+
+    document.getElementById("buttonroll").classList.add('buttongame');
+    document.getElementById("buttonroll").classList.remove('buttongamedisabled');
+   })
    
 
 

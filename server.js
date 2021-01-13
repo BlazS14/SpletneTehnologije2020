@@ -94,6 +94,8 @@ const CList = require('./models/clist')
 const Chore = require('./models/chore')
 const User = require('./models/user')
 const Room = require('./models/room')
+const Game = require('./models/game')
+
 
 
 io.on('connection',socket => {
@@ -105,11 +107,43 @@ io.on('connection',socket => {
         //var cookies = cookie.parse(socket.handshake.headers.cookie);
         let  user = await User.findById(data.userid);
 
-        console.debug(user)  
+        console.debug(user) 
+        socket.join(user.roomid);
+        user.socketid= socket.id
+        await user.save()
+
         //console.debug(socket.request.session.user)
+        if(io.sockets.adapter.rooms.get(user.roomid).size == 4)
+          startGame(users.roomid)
+
     })
 
 })
+
+async function startGame(roomid)
+{
+  let room = await Room.findById(roomid)
+  let game = await Game.findOne({roomid: roomid})
+  let redp = await User.findById(game.redplayer)
+  let greenp = await User.findById(game.greenplayer)
+  let yellowp = await User.findById(game.yellowplayer)
+  let bluep = await User.findById(game.blueplayer)
+
+  if(game.gamecounter % 4 == 0){
+    
+    io.to(redp.socketid).emit('roll',{})
+
+  }else if(game.gamecounter % 4 == 1){
+
+  }else if(game.gamecounter % 4 == 2){
+
+  }else if(game.gamecounter % 4 == 3){
+
+  }
+
+
+
+}
 
 
 

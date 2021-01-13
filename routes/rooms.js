@@ -204,7 +204,7 @@ router.get('/:id',async (req,res) => {
     }
 })*/
 
-router.delete('/:id',async (req,res) => {
+router.delete('/del/:id',async (req,res) => {
     let room
     try {
         sesh = req.session;

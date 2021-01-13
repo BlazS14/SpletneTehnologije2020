@@ -16,13 +16,13 @@
                     <%= rooms.playernum %>/4
                 </td>
                 <td>
-                    <% if(rooms.playernum < 4) { %>
+                    <% if(rooms.playernum < 5) { %>
                     <a class="buttonsave" href="/rooms/games/<%= rooms.id %>">Pridruži</a>
                     <% } %> 
                 </td>
                 <td>
                     <%- include('../partials/deleteform',{
-                        url: `/rooms/${rooms.id}`
+                        url: `/rooms/del/${rooms.id}`
                     }) %>
                 </td>
         </tr>
