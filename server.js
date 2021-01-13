@@ -190,8 +190,9 @@ io.sockets.on('connection', function (socket) {
         }
 
 
-
+        
         let user = await User.findById(name)
+        await Game.deleteMany({roomid: user.roomid})
         user.roomid = null
         await user.save()
   			delete clients[name];

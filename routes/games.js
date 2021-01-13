@@ -47,26 +47,35 @@ router.get('/:id',async (req,res) => {
 
         if(users.length == 4)
         {
-            let game = new Game({
-                redplayer: users[0].id,
-                yellowplayer: users[1].id,
-                blueplayer: users[2].id,
-                greenplayer: users[3].id,
-                redname: users[0].name,
-                yellowname: users[1].name,
-                bluename: users[2].name,
-                greenname: users[3].name,
-                redscore: 0,
-                yellowscore: 0,
-                bluescore: 0,
-                greenscore: 0,
-                redpos: [0,0,0,0],
-                yellowpos: [0,0,0,0],
-                bluepos: [0,0,0,0],
-                greenpos: [0,0,0,0],
-                roomid: room.id,
-                gamecounter: 0
-            })
+            let game = await Game.find({roomid: room.id})
+            if(game.length == 0)
+            {
+                game = new Game({
+                    redplayer: users[0].id,
+                    yellowplayer: users[1].id,
+                    blueplayer: users[2].id,
+                    greenplayer: users[3].id,
+                    redname: users[0].name,
+                    yellowname: users[1].name,
+                    bluename: users[2].name,
+                    greenname: users[3].name,
+                    redscore: 0,
+                    yellowscore: 0,
+                    bluescore: 0,
+                    greenscore: 0,
+                    redpos: [0,0,0,0],
+                    yellowpos: [0,0,0,0],
+                    bluepos: [0,0,0,0],
+                    greenpos: [0,0,0,0],
+                    roomid: room.id,
+                    gamecounter: 0
+                })
+                await game.save()
+            }else{
+                game = await Game.findOne({roomid: room.id})
+            }
+            
+            
             res.render('games/play', {game: game, user: user, room: room})
         }else{
             res.render('games/index', {users: users, user: user, room: room})
