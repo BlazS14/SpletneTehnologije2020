@@ -21,8 +21,8 @@ if (document.querySelector('.game') !== null) {
    
 }else if (document.querySelector('.lobby') !== null) {
 
-    //setTimeout(function(){
-     //   window.location.reload(1);
-      //  }, 2000);
+    setTimeout(function(){
+        window.location.reload(1);
+        }, 2000);
 
 }

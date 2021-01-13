@@ -67,9 +67,9 @@ router.get('/:id',async (req,res) => {
                 roomid: room.id,
                 gamecounter: 0
             })
-            res.render('games/play', {game: game, user: user})
+            res.render('games/play', {game: game, user: user, room: room})
         }else{
-            res.render('games/index', {users: users, user: user})
+            res.render('games/index', {users: users, user: user, room: room})
         }
         
     }

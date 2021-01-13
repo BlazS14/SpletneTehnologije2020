@@ -152,29 +152,48 @@ var clients = {};
 
 io.sockets.on('connection', function (socket) {
 
-  socket.on('add-user', function(data){
-    let user = User.findById(data.userid)
+  socket.on('add-user', async function(data){
+    let user = await User.findById(data.userid)
 
     clients[data.userid] = {
+      roomid: data.roomid,
       name: user.name,
       socket: socket.id
     };
-  });
-
-  socket.on('message', function(data){
-    console.log("Sending: " + data.msg);
-    let user = User.findById(data.userid)
-    if (clients[data.userid]){
-      socket.emit("add-message", {msg: data.msg, username: user.name});
-    } else {
-      console.log("Error in messaging" + data); 
+    for(var userid in clients) {
+  		if(clients[userid].roomid === data.roomid) {
+  			socket.to(clients[userid].socket).emit("user-connected", {username: clients[data.userid].name});
+  		}
     }
   });
 
+  socket.on('message', async function(data){
+    console.log("Sending: " + data.msg);
+    let user = await User.findById(data.userid)
+    for(var userid in clients) {
+  		if(clients[userid].roomid === data.roomid) {
+  			socket.to(clients[userid].socket).emit("add-message", {msg: data.msg, username: clients[data.userid].name});
+  		}
+    }
+    socket.emit("add-message", {msg: data.msg, username: clients[data.userid].name});
+  });
+
   //Removing the socket on disconnect
-  socket.on('disconnect', function() {
+  socket.on('disconnect', async function() {
   	for(var name in clients) {
   		if(clients[name].socket === socket.id) {
+        
+        for(var userid in clients) {
+          if(clients[userid].roomid === clients[name].roomid) {
+            socket.to(clients[userid].socket).emit("user-disconnected");
+          }
+        }
+
+
+
+        let user = await User.findById(name)
+        user.roomid = null
+        await user.save()
   			delete clients[name];
   			break;
   		}
