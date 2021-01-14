@@ -165,9 +165,10 @@ io.sockets.on('connection', function (socket) {
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
   			socket.to(clients[userid].socket).emit("user-connected", {username: clients[data.userid].name});
-  		}
+        socket.to(clients[userid].socket).emit("update-state", {rfigs: [], yfigs: [], bfigs: [], gfigs: [], rscore: 0, yscore: 0, bscore: 0, gscore: 0});
+      }
     }
-
+    socket.emit("update-state", {rfigs: [], yfigs: [], bfigs: [], gfigs: [], rscore: 0, yscore: 0, bscore: 0, gscore: 0});
     if(user.id == redplayer.id)
     {
       socket.emit("roll",{username: user.name});
@@ -180,10 +181,11 @@ io.sockets.on('connection', function (socket) {
     let user = await User.findById(data.userid)
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
-  			socket.to(clients[userid].socket).emit("add-message", {msg: data.msg, username: clients[data.userid].name});
+        socket.to(clients[userid].socket).emit("add-message", {msg: data.msg, username: clients[data.userid].name});
   		}
     }
     socket.emit("add-message", {msg: data.msg, username: clients[data.userid].name});
+    
   });
 
   //Removing the socket on disconnect
@@ -209,7 +211,7 @@ io.sockets.on('connection', function (socket) {
   	}	
   })
 
-
+  
 
 
 
@@ -244,7 +246,102 @@ io.sockets.on('connection', function (socket) {
   });
 
 
+
   socket.on('do-spawn', async function(data){
+    let user = await User.findById(data.userid)
+    let room = await Room.findById(data.roomid)
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
+    let yellowplayer = await User.findById(game.yellowplayer)
+    let blueplayer = await User.findById(game.blueplayer)
+    let greenplayer = await User.findById(game.greenplayer)
+
+    let i = 0
+            
+      if(user.id == redplayer.id)
+      {
+        for(; i != 4; i++)
+    {
+      if(game.redpos[i] == null)
+      {
+        game.redpos[i] = 0
+        game.markModified('redpos')
+        getKill(0,"r",game)
+        break
+      }
+    }
+      }else if(user.id == yellowplayer.id)
+      {
+        for(; i != 4; i++)
+    {
+      if(game.yellowpos[i] == null)
+      {
+        game.yellowpos[i] = 0
+        game.markModified('yellowpos')
+        getKill(0,"y",game)
+        break
+      }
+    }
+      }else if(user.id == blueplayer.id)
+      {
+        for(; i != 4; i++)
+    {
+      if(game.bluepos[i] == null)
+      {
+        game.bluepos[i] = 0
+        game.markModified('bluepos')
+        getKill(0,"b",game)
+        break
+      }
+    }
+      }else if(user.id == greenplayer.id)
+      {
+        for(; i != 4; i++)
+    {
+      if(game.greenpos[i] == null)
+      {
+        game.greenpos[i] = 0
+        game.markModified('greenpos')
+        getKill(0,"g",game)
+        break
+      }
+    }
+      }
+    
+    
+    
+    
+
+    await game.save()
+
+    for(var userid in clients) {
+  		if(clients[userid].roomid === data.roomid) {
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  		}
+    }
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  
+    game.gamecounter++
+    await game.save()
+
+    if(game.gamecounter%4 == 0)
+    {
+      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 1)
+    {
+      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 2)
+    {
+      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 3)
+    {
+      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+    }
+  });
+
+
+
+  socket.on('do-fig1', async function(data){
     let user = await User.findById(data.userid)
     let room = await Room.findById(data.roomid)
     let game = await Game.findOne({roomid: user.roomid})
@@ -255,24 +352,246 @@ io.sockets.on('connection', function (socket) {
 
     if(user.id == redplayer.id)
     {
-      game.redpos.push(0)
+      game.redpos[0] += game.roll
+      getKill(game.redpos[0],"r",game)
+      game.markModified('redpos')
     }else if(user.id == yellowplayer.id)
     {
-      game.yellowpos.push(0)
+      game.yellowpos[0] += game.roll
+      getKill(game.yellowpos[0],"y",game)
+      game.markModified('yellowpos')
+
     }else if(user.id == blueplayer.id)
     {
-      game.bluepos.push(0)
+      game.bluepos[0] += game.roll
+      getKill(game.bluepos[0],"b",game)
+      game.markModified('bluepos')
+
     }else if(user.id == greenplayer.id)
     {
-      game.greenpos.push(0)
+      game.greenpos[0] += game.roll
+      getKill(game.greenpos[0],"g",game)
+      game.markModified('greenpos')
+
     }
+
+    await game.save()
 
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
-  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos});
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
   		}
     }
-    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos});
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+
+    game.gamecounter++
+    await game.save()
+
+    if(game.gamecounter%4 == 0)
+    {
+      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 1)
+    {
+      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 2)
+    {
+      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 3)
+    {
+      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+    }
+    
+  });
+
+
+  socket.on('do-fig2', async function(data){
+    let user = await User.findById(data.userid)
+    let room = await Room.findById(data.roomid)
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
+    let yellowplayer = await User.findById(game.yellowplayer)
+    let blueplayer = await User.findById(game.blueplayer)
+    let greenplayer = await User.findById(game.greenplayer)
+
+    if(user.id == redplayer.id)
+    {
+      game.redpos[1] += game.roll
+      getKill(game.redpos[1],"r",game)
+      game.markModified('redpos')
+    }else if(user.id == yellowplayer.id)
+    {
+      game.yellowpos[1] += game.roll
+      getKill(game.yellowpos[1],"y",game)
+      game.markModified('yellowpos')
+
+    }else if(user.id == blueplayer.id)
+    {
+      game.bluepos[1] += game.roll
+      getKill(game.bluepos[1],"b",game)
+      game.markModified('bluepos')
+
+    }else if(user.id == greenplayer.id)
+    {
+      game.greenpos[1] += game.roll
+      getKill(game.greenpos[1],"g",game)
+      game.markModified('greenpos')
+
+    }
+
+    await game.save()
+
+    for(var userid in clients) {
+  		if(clients[userid].roomid === data.roomid) {
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  		}
+    }
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+
+    game.gamecounter++
+    await game.save()
+
+    if(game.gamecounter%4 == 0)
+    {
+      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 1)
+    {
+      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 2)
+    {
+      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 3)
+    {
+      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+    }
+    
+  });
+
+
+
+  socket.on('do-fig3', async function(data){
+    let user = await User.findById(data.userid)
+    let room = await Room.findById(data.roomid)
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
+    let yellowplayer = await User.findById(game.yellowplayer)
+    let blueplayer = await User.findById(game.blueplayer)
+    let greenplayer = await User.findById(game.greenplayer)
+
+    if(user.id == redplayer.id)
+    {
+      game.redpos[2] += game.roll
+      getKill(game.redpos[2],"r",game)
+      game.markModified('redpos')
+    }else if(user.id == yellowplayer.id)
+    {
+      game.yellowpos[2] += game.roll
+      getKill(game.yellowpos[2],"y",game)
+      game.markModified('yellowpos')
+
+    }else if(user.id == blueplayer.id)
+    {
+      game.bluepos[2] += game.roll
+      getKill(game.bluepos[2],"b",game)
+      game.markModified('bluepos')
+
+    }else if(user.id == greenplayer.id)
+    {
+      game.greenpos[2] += game.roll
+      getKill(game.greenpos[2],"g",game)
+      game.markModified('greenpos')
+
+    }
+
+    game = await game.save()
+
+    for(var userid in clients) {
+  		if(clients[userid].roomid === data.roomid) {
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  		}
+    }
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+
+    game.gamecounter++
+    await game.save()
+
+    if(game.gamecounter%4 == 0)
+    {
+      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 1)
+    {
+      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 2)
+    {
+      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 3)
+    {
+      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+    }
+    
+  });
+
+
+
+  socket.on('do-fig4', async function(data){
+    let user = await User.findById(data.userid)
+    let room = await Room.findById(data.roomid)
+    let game = await Game.findOne({roomid: user.roomid})
+    let redplayer = await User.findById(game.redplayer)
+    let yellowplayer = await User.findById(game.yellowplayer)
+    let blueplayer = await User.findById(game.blueplayer)
+    let greenplayer = await User.findById(game.greenplayer)
+
+    if(user.id == redplayer.id)
+    {
+      game.redpos[3] += game.roll
+      getKill(game.redpos[3],"r",game)
+      game.markModified('redpos')
+    }else if(user.id == yellowplayer.id)
+    {
+      game.yellowpos[3] += game.roll
+      getKill(game.yellowpos[3],"y",game)
+      game.markModified('yellowpos')
+
+    }else if(user.id == blueplayer.id)
+    {
+      game.bluepos[3] += game.roll
+      getKill(game.bluepos[3],"b",game)
+      game.markModified('bluepos')
+
+    }else if(user.id == greenplayer.id)
+    {
+      game.greenpos[3] += game.roll
+      getKill(game.greenpos[3],"g",game)
+      game.markModified('greenpos')
+
+    }
+
+    game = await game.save()
+
+    for(var userid in clients) {
+  		if(clients[userid].roomid === data.roomid) {
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  		}
+    }
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+
+    game.gamecounter++
+    await game.save()
+
+    if(game.gamecounter%4 == 0)
+    {
+      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 1)
+    {
+      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 2)
+    {
+      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
+    }else if(game.gamecounter%4 == 3)
+    {
+      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+    }
+    
   });
 
 
@@ -336,7 +655,66 @@ io.sockets.on('connection', function (socket) {
 
 
 
+  async function getKill(pos,color,game)
+  {
+    if(pos <= 51)
+    {
+      let abs = 0
+      if(color == "r")
+      {
+        abs = pos
+      }else if(color == "y")
+      {
+        abs = (pos+39)%51
+      }else if(color == "b")
+      {
+        abs = (pos+26)%51
+      }else if(color == "g")
+      {
+        abs = (pos+13)%51
+      }
 
+
+      let i = 0
+      for(i = 0; i != 4; i++ )
+      {
+        if(color != "r" && game.redpos[i] != null)
+        {
+          if(game.redpos[i] == abs)
+          {
+            game.redpos[i] = null
+            game.markModified('redpos')
+          }
+        }
+        if(color != "y" && game.yellowpos[i] != null)
+        {
+          if((game.yellowpos[i]+36)%51 == abs)
+          {
+            game.yellowpos[i] = null
+            game.markModified('yellowpos')
+          }
+        }
+        if(color != "b" && game.bluepos[i] != null)
+        {
+          if((game.bluepos[i]+26)%51 == abs)
+          {
+            game.bluepos[i] = null
+            game.markModified('bluepos')
+          }
+        }
+        if(color != "g" && game.greenpos[i] != null)
+        {
+          if((game.greenpos[i]+13)%51 == abs)
+          {
+            game.greenpos[i] = null
+            game.markModified('greenpos')
+          }
+        }
+      }
+
+      //await game.save()
+    }
+  }
 
 });
 
