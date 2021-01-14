@@ -108,6 +108,74 @@ if (document.querySelector('.game') !== null) {
 
 
 
+   socket.on('update-state',data => {
+    console.log("GOT UPDATE" + data.roll)
+
+
+    //ADD UPDATE STATE
+
+    //every player gen for himself. if null spawn, else set on board.
+    //if over 51, set on team finish
+
+    //if  pos == 56 score++
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if(data.figs.length == 0 && data.roll != 6)
+    {
+        socket.emit('do-none',{userid: userid, roomid: roomid})
+    }else{
+        
+
+        if(data.roll == 6 && data.figs.length < 4)
+        {
+            document.getElementById("buttonspawn").classList.add('buttongame');
+            document.getElementById("buttonspawn").classList.remove('buttongamedisabled');
+        }
+
+
+        if(data.figs[0] != null){
+            if(data.figs[0] + data.roll < 57){
+                document.getElementById("buttonfig1").classList.add('buttongame');
+                document.getElementById("buttonfig1").classList.remove('buttongamedisabled');
+            }
+        }
+
+        if(data.figs[1] != null){
+            if(data.figs[1] + data.roll < 57){
+                document.getElementById("buttonfig2").classList.add('buttongame');
+                document.getElementById("buttonfig2").classList.remove('buttongamedisabled');
+            }
+        }
+
+        if(data.figs[2] != null){
+            if(data.figs[2] + data.roll < 57){
+                document.getElementById("buttonfig3").classList.add('buttongame');
+                document.getElementById("buttonfig3").classList.remove('buttongamedisabled');
+            }
+        }
+
+        if(data.figs[3] != null){
+            if(data.figs[3] + data.roll < 57){
+                document.getElementById("buttonfig4").classList.add('buttongame');
+                document.getElementById("buttonfig4").classList.remove('buttongamedisabled');
+            }
+        }
+    }
+   })
+
+
 
 
 
