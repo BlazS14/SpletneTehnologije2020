@@ -58,6 +58,10 @@ const gameSchema = new mongoose.Schema({
     },
     roll: {
         type: Number
+    },
+    wincount:
+    {
+        type: Number
     }
 })
 

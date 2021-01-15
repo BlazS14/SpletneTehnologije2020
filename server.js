@@ -316,27 +316,137 @@ io.sockets.on('connection', function (socket) {
 
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
-  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
   		}
     }
-    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
   
     game.gamecounter++
     await game.save()
 
-    if(game.gamecounter%4 == 0)
+
+    if(checkWin(game) == true)
     {
-      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 1)
-    {
-      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 2)
-    {
-      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 3)
-    {
-      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+      let place1
+      let place2
+      let place3
+      let place4
+
+      redplayer.gamesplayed++
+      yellowplayer.gamesplayed++
+      blueplayer.gamesplayed++
+      greenplayer.gamesplayed++
+
+      if(game.redscore == 1)
+      {
+        redplayer.gameswon++
+        redplayer.place1++
+        place1 = redplayer.name
+      }else if(game.redscore == 2)
+      {
+        redplayer.place2++
+        place2 = redplayer.name
+      }else if(game.redscore == 3)
+      {
+        redplayer.place3++
+        place3 = redplayer.name
+      }else if(game.redscore == 4)
+      {
+        place4 = redplayer.name
+        redplayer.place4++
+      }
+
+      if(game.yellowscore == 1)
+      {
+        place1 = yellowplayer.name
+        yellowplayer.gameswon++
+        yellowplayer.place1++
+      }else if(game.yellowscore == 2)
+      {
+        yellowplayer.place2++
+        place2 = yellowplayer.name
+      }else if(game.yellowscore == 3)
+      {
+        place3 = yellowplayer.name
+        yellowplayer.place3++
+      }else if(game.yellowscore == 4)
+      {
+        place4 = yellowplayer.name
+        yellowplayer.place4++
+      }
+
+      if(game.bluescore == 1)
+      {
+        place1 = blueplayer.name
+        blueplayer.gameswon++
+        blueplayer.place1++
+      }else if(game.bluescore == 2)
+      {
+        place2 = blueplayer.name
+        blueplayer.place2++
+      }else if(game.bluescore == 3)
+      {
+        place3 = blueplayer.name
+        blueplayer.place3++
+      }else if(game.bluescore == 4)
+      {
+        place4 = blueplayer.name
+        blueplayer.place4++
+      }
+
+      if(game.greenscore == 1)
+      {
+        place1 = greenplayer.name
+        greenplayer.gameswon++
+        greenplayer.place1++
+      }else if(game.greenscore == 2)
+      {
+        place2 = greenplayer.name
+        greenplayer.place2++
+      }else if(game.greenscore == 3)
+      {
+        place3 = greenplayer.name
+        greenplayer.place3++
+      }else if(game.greenscore == 4)
+      {
+        place4 = greenplayer.name
+        greenplayer.place4++
+      }
+
+      await redplayer.save()
+      await yellowplayer.save()
+      await blueplayer.save()
+      await greenplayer.save()
+
+      await game.save()
+      await room.remove()
+
+      for(var userid in clients) {
+        if(clients[userid].roomid === data.roomid) {
+          socket.to(clients[userid].socket).emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+        }
+      }
+      socket.emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+  
+
+
+    }else{
+      if(game.gamecounter%4 == 0)
+      {
+        socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name, score: game.redscore});
+      }else if(game.gamecounter%4 == 1)
+      {
+        socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name, score: game.yellowscore});
+      }else if(game.gamecounter%4 == 2)
+      {
+        socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name, score: game.bluescore});
+      }else if(game.gamecounter%4 == 3)
+      {
+        socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name, score: game.greenscore});
+      }
+
     }
+
   });
 
 
@@ -375,31 +485,142 @@ io.sockets.on('connection', function (socket) {
 
     }
 
+
+
     await game.save()
 
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
-  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
   		}
     }
-    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
 
     game.gamecounter++
     await game.save()
 
-    if(game.gamecounter%4 == 0)
+    if(checkWin(game) == true)
     {
-      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 1)
-    {
-      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 2)
-    {
-      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 3)
-    {
-      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+      let place1
+      let place2
+      let place3
+      let place4
+
+      redplayer.gamesplayed++
+      yellowplayer.gamesplayed++
+      blueplayer.gamesplayed++
+      greenplayer.gamesplayed++
+
+      if(game.redscore == 1)
+      {
+        redplayer.gameswon++
+        redplayer.place1++
+        place1 = redplayer.name
+      }else if(game.redscore == 2)
+      {
+        redplayer.place2++
+        place2 = redplayer.name
+      }else if(game.redscore == 3)
+      {
+        redplayer.place3++
+        place3 = redplayer.name
+      }else if(game.redscore == 4)
+      {
+        place4 = redplayer.name
+        redplayer.place4++
+      }
+
+      if(game.yellowscore == 1)
+      {
+        place1 = yellowplayer.name
+        yellowplayer.gameswon++
+        yellowplayer.place1++
+      }else if(game.yellowscore == 2)
+      {
+        yellowplayer.place2++
+        place2 = yellowplayer.name
+      }else if(game.yellowscore == 3)
+      {
+        place3 = yellowplayer.name
+        yellowplayer.place3++
+      }else if(game.yellowscore == 4)
+      {
+        place4 = yellowplayer.name
+        yellowplayer.place4++
+      }
+
+      if(game.bluescore == 1)
+      {
+        place1 = blueplayer.name
+        blueplayer.gameswon++
+        blueplayer.place1++
+      }else if(game.bluescore == 2)
+      {
+        place2 = blueplayer.name
+        blueplayer.place2++
+      }else if(game.bluescore == 3)
+      {
+        place3 = blueplayer.name
+        blueplayer.place3++
+      }else if(game.bluescore == 4)
+      {
+        place4 = blueplayer.name
+        blueplayer.place4++
+      }
+
+      if(game.greenscore == 1)
+      {
+        place1 = greenplayer.name
+        greenplayer.gameswon++
+        greenplayer.place1++
+      }else if(game.greenscore == 2)
+      {
+        place2 = greenplayer.name
+        greenplayer.place2++
+      }else if(game.greenscore == 3)
+      {
+        place3 = greenplayer.name
+        greenplayer.place3++
+      }else if(game.greenscore == 4)
+      {
+        place4 = greenplayer.name
+        greenplayer.place4++
+      }
+
+      await redplayer.save()
+      await yellowplayer.save()
+      await blueplayer.save()
+      await greenplayer.save()
+
+      await game.save()
+      await room.remove()
+
+      for(var userid in clients) {
+        if(clients[userid].roomid === data.roomid) {
+          socket.to(clients[userid].socket).emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+        }
+      }
+      socket.emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+  
+
+
+    }else{
+      if(game.gamecounter%4 == 0)
+      {
+        socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name, score: game.redscore});
+      }else if(game.gamecounter%4 == 1)
+      {
+        socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name, score: game.yellowscore});
+      }else if(game.gamecounter%4 == 2)
+      {
+        socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name, score: game.bluescore});
+      }else if(game.gamecounter%4 == 3)
+      {
+        socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name, score: game.greenscore});
+      }
+
     }
+
     
   });
 
@@ -442,27 +663,136 @@ io.sockets.on('connection', function (socket) {
 
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
-  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
   		}
     }
-    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
 
     game.gamecounter++
     await game.save()
 
-    if(game.gamecounter%4 == 0)
+    if(checkWin(game) == true)
     {
-      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 1)
-    {
-      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 2)
-    {
-      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 3)
-    {
-      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+      let place1
+      let place2
+      let place3
+      let place4
+
+      redplayer.gamesplayed++
+      yellowplayer.gamesplayed++
+      blueplayer.gamesplayed++
+      greenplayer.gamesplayed++
+
+      if(game.redscore == 1)
+      {
+        redplayer.gameswon++
+        redplayer.place1++
+        place1 = redplayer.name
+      }else if(game.redscore == 2)
+      {
+        redplayer.place2++
+        place2 = redplayer.name
+      }else if(game.redscore == 3)
+      {
+        redplayer.place3++
+        place3 = redplayer.name
+      }else if(game.redscore == 4)
+      {
+        place4 = redplayer.name
+        redplayer.place4++
+      }
+
+      if(game.yellowscore == 1)
+      {
+        place1 = yellowplayer.name
+        yellowplayer.gameswon++
+        yellowplayer.place1++
+      }else if(game.yellowscore == 2)
+      {
+        yellowplayer.place2++
+        place2 = yellowplayer.name
+      }else if(game.yellowscore == 3)
+      {
+        place3 = yellowplayer.name
+        yellowplayer.place3++
+      }else if(game.yellowscore == 4)
+      {
+        place4 = yellowplayer.name
+        yellowplayer.place4++
+      }
+
+      if(game.bluescore == 1)
+      {
+        place1 = blueplayer.name
+        blueplayer.gameswon++
+        blueplayer.place1++
+      }else if(game.bluescore == 2)
+      {
+        place2 = blueplayer.name
+        blueplayer.place2++
+      }else if(game.bluescore == 3)
+      {
+        place3 = blueplayer.name
+        blueplayer.place3++
+      }else if(game.bluescore == 4)
+      {
+        place4 = blueplayer.name
+        blueplayer.place4++
+      }
+
+      if(game.greenscore == 1)
+      {
+        place1 = greenplayer.name
+        greenplayer.gameswon++
+        greenplayer.place1++
+      }else if(game.greenscore == 2)
+      {
+        place2 = greenplayer.name
+        greenplayer.place2++
+      }else if(game.greenscore == 3)
+      {
+        place3 = greenplayer.name
+        greenplayer.place3++
+      }else if(game.greenscore == 4)
+      {
+        place4 = greenplayer.name
+        greenplayer.place4++
+      }
+
+      await redplayer.save()
+      await yellowplayer.save()
+      await blueplayer.save()
+      await greenplayer.save()
+
+      await game.save()
+      await room.remove()
+
+      for(var userid in clients) {
+        if(clients[userid].roomid === data.roomid) {
+          socket.to(clients[userid].socket).emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+        }
+      }
+      socket.emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+  
+
+
+    }else{
+      if(game.gamecounter%4 == 0)
+      {
+        socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name, score: game.redscore});
+      }else if(game.gamecounter%4 == 1)
+      {
+        socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name, score: game.yellowscore});
+      }else if(game.gamecounter%4 == 2)
+      {
+        socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name, score: game.bluescore});
+      }else if(game.gamecounter%4 == 3)
+      {
+        socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name, score: game.greenscore});
+      }
+
     }
+
     
   });
 
@@ -506,27 +836,136 @@ io.sockets.on('connection', function (socket) {
 
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
-  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
   		}
     }
-    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
 
     game.gamecounter++
     await game.save()
 
-    if(game.gamecounter%4 == 0)
+    if(checkWin(game) == true)
     {
-      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 1)
-    {
-      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 2)
-    {
-      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 3)
-    {
-      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+      let place1
+      let place2
+      let place3
+      let place4
+
+      redplayer.gamesplayed++
+      yellowplayer.gamesplayed++
+      blueplayer.gamesplayed++
+      greenplayer.gamesplayed++
+
+      if(game.redscore == 1)
+      {
+        redplayer.gameswon++
+        redplayer.place1++
+        place1 = redplayer.name
+      }else if(game.redscore == 2)
+      {
+        redplayer.place2++
+        place2 = redplayer.name
+      }else if(game.redscore == 3)
+      {
+        redplayer.place3++
+        place3 = redplayer.name
+      }else if(game.redscore == 4)
+      {
+        place4 = redplayer.name
+        redplayer.place4++
+      }
+
+      if(game.yellowscore == 1)
+      {
+        place1 = yellowplayer.name
+        yellowplayer.gameswon++
+        yellowplayer.place1++
+      }else if(game.yellowscore == 2)
+      {
+        yellowplayer.place2++
+        place2 = yellowplayer.name
+      }else if(game.yellowscore == 3)
+      {
+        place3 = yellowplayer.name
+        yellowplayer.place3++
+      }else if(game.yellowscore == 4)
+      {
+        place4 = yellowplayer.name
+        yellowplayer.place4++
+      }
+
+      if(game.bluescore == 1)
+      {
+        place1 = blueplayer.name
+        blueplayer.gameswon++
+        blueplayer.place1++
+      }else if(game.bluescore == 2)
+      {
+        place2 = blueplayer.name
+        blueplayer.place2++
+      }else if(game.bluescore == 3)
+      {
+        place3 = blueplayer.name
+        blueplayer.place3++
+      }else if(game.bluescore == 4)
+      {
+        place4 = blueplayer.name
+        blueplayer.place4++
+      }
+
+      if(game.greenscore == 1)
+      {
+        place1 = greenplayer.name
+        greenplayer.gameswon++
+        greenplayer.place1++
+      }else if(game.greenscore == 2)
+      {
+        place2 = greenplayer.name
+        greenplayer.place2++
+      }else if(game.greenscore == 3)
+      {
+        place3 = greenplayer.name
+        greenplayer.place3++
+      }else if(game.greenscore == 4)
+      {
+        place4 = greenplayer.name
+        greenplayer.place4++
+      }
+
+      await redplayer.save()
+      await yellowplayer.save()
+      await blueplayer.save()
+      await greenplayer.save()
+
+      await game.save()
+      await room.remove()
+
+      for(var userid in clients) {
+        if(clients[userid].roomid === data.roomid) {
+          socket.to(clients[userid].socket).emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+        }
+      }
+      socket.emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+  
+
+
+    }else{
+      if(game.gamecounter%4 == 0)
+      {
+        socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name, score: game.redscore});
+      }else if(game.gamecounter%4 == 1)
+      {
+        socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name, score: game.yellowscore});
+      }else if(game.gamecounter%4 == 2)
+      {
+        socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name, score: game.bluescore});
+      }else if(game.gamecounter%4 == 3)
+      {
+        socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name, score: game.greenscore});
+      }
+
     }
+
     
   });
 
@@ -570,28 +1009,136 @@ io.sockets.on('connection', function (socket) {
 
     for(var userid in clients) {
   		if(clients[userid].roomid === data.roomid) {
-  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+  			socket.to(clients[userid].socket).emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
   		}
     }
-    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, rscore: game.redscore, yscore: game.yellowscore, bscore: game.bluescore, gscore: game.bluescore});
+    socket.emit("update-state",{rfigs: game.redpos, yfigs: game.yellowpos, bfigs: game.bluepos, gfigs: game.greenpos, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
 
     game.gamecounter++
     await game.save()
 
-    if(game.gamecounter%4 == 0)
+    if(checkWin(game) == true)
     {
-      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 1)
-    {
-      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 2)
-    {
-      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 3)
-    {
-      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+      let place1
+      let place2
+      let place3
+      let place4
+
+      redplayer.gamesplayed++
+      yellowplayer.gamesplayed++
+      blueplayer.gamesplayed++
+      greenplayer.gamesplayed++
+
+      if(game.redscore == 1)
+      {
+        redplayer.gameswon++
+        redplayer.place1++
+        place1 = redplayer.name
+      }else if(game.redscore == 2)
+      {
+        redplayer.place2++
+        place2 = redplayer.name
+      }else if(game.redscore == 3)
+      {
+        redplayer.place3++
+        place3 = redplayer.name
+      }else if(game.redscore == 4)
+      {
+        place4 = redplayer.name
+        redplayer.place4++
+      }
+
+      if(game.yellowscore == 1)
+      {
+        place1 = yellowplayer.name
+        yellowplayer.gameswon++
+        yellowplayer.place1++
+      }else if(game.yellowscore == 2)
+      {
+        yellowplayer.place2++
+        place2 = yellowplayer.name
+      }else if(game.yellowscore == 3)
+      {
+        place3 = yellowplayer.name
+        yellowplayer.place3++
+      }else if(game.yellowscore == 4)
+      {
+        place4 = yellowplayer.name
+        yellowplayer.place4++
+      }
+
+      if(game.bluescore == 1)
+      {
+        place1 = blueplayer.name
+        blueplayer.gameswon++
+        blueplayer.place1++
+      }else if(game.bluescore == 2)
+      {
+        place2 = blueplayer.name
+        blueplayer.place2++
+      }else if(game.bluescore == 3)
+      {
+        place3 = blueplayer.name
+        blueplayer.place3++
+      }else if(game.bluescore == 4)
+      {
+        place4 = blueplayer.name
+        blueplayer.place4++
+      }
+
+      if(game.greenscore == 1)
+      {
+        place1 = greenplayer.name
+        greenplayer.gameswon++
+        greenplayer.place1++
+      }else if(game.greenscore == 2)
+      {
+        place2 = greenplayer.name
+        greenplayer.place2++
+      }else if(game.greenscore == 3)
+      {
+        place3 = greenplayer.name
+        greenplayer.place3++
+      }else if(game.greenscore == 4)
+      {
+        place4 = greenplayer.name
+        greenplayer.place4++
+      }
+
+      await redplayer.save()
+      await yellowplayer.save()
+      await blueplayer.save()
+      await greenplayer.save()
+
+      await game.save()
+      await room.remove()
+
+      for(var userid in clients) {
+        if(clients[userid].roomid === data.roomid) {
+          socket.to(clients[userid].socket).emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+        }
+      }
+      socket.emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+  
+
+
+    }else{
+      if(game.gamecounter%4 == 0)
+      {
+        socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name, score: game.redscore});
+      }else if(game.gamecounter%4 == 1)
+      {
+        socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name, score: game.yellowscore});
+      }else if(game.gamecounter%4 == 2)
+      {
+        socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name, score: game.bluescore});
+      }else if(game.gamecounter%4 == 3)
+      {
+        socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name, score: game.greenscore});
+      }
+
     }
-    
+
   });
 
 
@@ -604,22 +1151,134 @@ io.sockets.on('connection', function (socket) {
     let blueplayer = await User.findById(game.blueplayer)
     let greenplayer = await User.findById(game.greenplayer)
 
+
     game.gamecounter++
     await game.save()
 
-    if(game.gamecounter%4 == 0)
+
+    if(checkWin(game) == true)
     {
-      socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 1)
-    {
-      socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 2)
-    {
-      socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name});
-    }else if(game.gamecounter%4 == 3)
-    {
-      socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name});
+      let place1
+      let place2
+      let place3
+      let place4
+
+      redplayer.gamesplayed++
+      yellowplayer.gamesplayed++
+      blueplayer.gamesplayed++
+      greenplayer.gamesplayed++
+
+      if(game.redscore == 1)
+      {
+        redplayer.gameswon++
+        redplayer.place1++
+        place1 = redplayer.name
+      }else if(game.redscore == 2)
+      {
+        redplayer.place2++
+        place2 = redplayer.name
+      }else if(game.redscore == 3)
+      {
+        redplayer.place3++
+        place3 = redplayer.name
+      }else if(game.redscore == 4)
+      {
+        place4 = redplayer.name
+        redplayer.place4++
+      }
+
+      if(game.yellowscore == 1)
+      {
+        place1 = yellowplayer.name
+        yellowplayer.gameswon++
+        yellowplayer.place1++
+      }else if(game.yellowscore == 2)
+      {
+        yellowplayer.place2++
+        place2 = yellowplayer.name
+      }else if(game.yellowscore == 3)
+      {
+        place3 = yellowplayer.name
+        yellowplayer.place3++
+      }else if(game.yellowscore == 4)
+      {
+        place4 = yellowplayer.name
+        yellowplayer.place4++
+      }
+
+      if(game.bluescore == 1)
+      {
+        place1 = blueplayer.name
+        blueplayer.gameswon++
+        blueplayer.place1++
+      }else if(game.bluescore == 2)
+      {
+        place2 = blueplayer.name
+        blueplayer.place2++
+      }else if(game.bluescore == 3)
+      {
+        place3 = blueplayer.name
+        blueplayer.place3++
+      }else if(game.bluescore == 4)
+      {
+        place4 = blueplayer.name
+        blueplayer.place4++
+      }
+
+      if(game.greenscore == 1)
+      {
+        place1 = greenplayer.name
+        greenplayer.gameswon++
+        greenplayer.place1++
+      }else if(game.greenscore == 2)
+      {
+        place2 = greenplayer.name
+        greenplayer.place2++
+      }else if(game.greenscore == 3)
+      {
+        place3 = greenplayer.name
+        greenplayer.place3++
+      }else if(game.greenscore == 4)
+      {
+        place4 = greenplayer.name
+        greenplayer.place4++
+      }
+
+      await redplayer.save()
+      await yellowplayer.save()
+      await blueplayer.save()
+      await greenplayer.save()
+
+      await game.save()
+      await room.remove()
+
+      for(var userid in clients) {
+        if(clients[userid].roomid === data.roomid) {
+          socket.to(clients[userid].socket).emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+        }
+      }
+      socket.emit("win",{place1: place1, place2: place2, place3: place3, place4: place4, redscore: game.redscore, yellowscore: game.yellowscore, bluescore: game.bluescore, greenscore: game.greenscore});
+
+
+    }else{
+      if(game.gamecounter%4 == 0)
+      {
+        socket.to(clients[redplayer.id].socket).emit("roll",{username: user.name, score: game.redscore});
+      }else if(game.gamecounter%4 == 1)
+      {
+        socket.to(clients[yellowplayer.id].socket).emit("roll",{username: user.name, score: game.yellowscore});
+      }else if(game.gamecounter%4 == 2)
+      {
+        socket.to(clients[blueplayer.id].socket).emit("roll",{username: user.name, score: game.bluescore});
+      }else if(game.gamecounter%4 == 3)
+      {
+        socket.to(clients[greenplayer.id].socket).emit("roll",{username: user.name, score: game.greenscore});
+      }
+
     }
+
+
+    
 
   });
 
@@ -644,7 +1303,70 @@ io.sockets.on('connection', function (socket) {
 
 
 
+  async function checkWin(game){
+    let sum1=0
+    let sum2=0
+    let sum3=0
+    let sum4=0
 
+    for(let i = 0; i != 4; i++)
+    {
+      if(game.redpos[i] != null)
+      {
+        sum1 = sum1 + game.redpos[i]
+      }
+    }
+    for(let i = 0; i != 4; i++)
+    {
+      if(game.yellowpos[i] != null)
+      {
+        sum2 = sum2 + game.yellowpos[i]
+      }
+    }
+    for(let i = 0; i != 4; i++)
+    {
+      if(game.bluepos[i] != null)
+      {
+        sum3 = sum3 + game.bluepos[i]
+      }
+    }
+    for(let i = 0; i != 4; i++)
+    {
+      if(game.greenpos[i] != null)
+      {
+        sum4 = sum4 + game.greenpos[i]
+      }
+    }
+
+    if(sum1 >= 224 && game.redscore == 0)
+    {
+      game.wincount++
+      game.redscore = game.wincount 
+    }
+    if(sum2 >= 224 && game.yellowscore == 0)
+    {
+      game.wincount++
+      game.yellowscore = game.wincount 
+    }
+    if(sum3 >= 224 && game.bluescore == 0)
+    {
+      game.wincount++
+      game.bluescore = game.wincount 
+    }
+    if(sum4 >= 224 && game.greenscore == 0)
+    {
+      game.wincount++
+      game.greenscore = game.wincount 
+    }
+
+    await game.save()
+
+    if(sum1+sum2+sum3+sum4 >= 896)
+    {
+      return true
+    }
+    return false
+  }
 
 
 
@@ -680,7 +1402,7 @@ io.sockets.on('connection', function (socket) {
       {
         if(color != "r" && game.redpos[i] != null)
         {
-          if(game.redpos[i] == abs)
+          if(game.redpos[i] == abs && game.redpos[i] < 52)
           {
             game.redpos[i] = null
             game.markModified('redpos')
@@ -688,7 +1410,7 @@ io.sockets.on('connection', function (socket) {
         }
         if(color != "y" && game.yellowpos[i] != null)
         {
-          if((game.yellowpos[i]+36)%51 == abs)
+          if((game.yellowpos[i]+39)%52 == abs && game.yellowpos[i] < 52)
           {
             game.yellowpos[i] = null
             game.markModified('yellowpos')
@@ -696,7 +1418,7 @@ io.sockets.on('connection', function (socket) {
         }
         if(color != "b" && game.bluepos[i] != null)
         {
-          if((game.bluepos[i]+26)%51 == abs)
+          if((game.bluepos[i]+26)%52 == abs && game.bluepos[i] < 52)
           {
             game.bluepos[i] = null
             game.markModified('bluepos')
@@ -704,7 +1426,7 @@ io.sockets.on('connection', function (socket) {
         }
         if(color != "g" && game.greenpos[i] != null)
         {
-          if((game.greenpos[i]+13)%51 == abs)
+          if((game.greenpos[i]+13)%52 == abs && game.greenpos[i] < 52)
           {
             game.greenpos[i] = null
             game.markModified('greenpos')

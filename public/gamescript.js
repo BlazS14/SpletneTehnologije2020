@@ -20,13 +20,22 @@ if (document.querySelector('.game') !== null) {
 
     socket.on('roll',data => {
     console.log("GOT ROLL")
-    document.getElementById("buttonroll").classList.add('buttongame');
-    document.getElementById("buttonroll").classList.remove('buttongamedisabled');
+    if(data.score != 0 && data.score != null)
+    {
+        console.log("ROLL SKIPPED")
+        socket.emit('do-none',{userid: userid, roomid: roomid})
+    }else{
+        document.getElementById("buttonroll").classList.add('buttongame');
+        document.getElementById("buttonroll").classList.remove('buttongamedisabled');
+    }
+    
    })
    
 
    socket.on('get-roll',data => {
     console.log("GOT ROLL" + data.roll)
+
+    let nooptions = 0;
 
     if(data.figs.length == 0 && data.roll != 6)
     {
@@ -36,6 +45,7 @@ if (document.querySelector('.game') !== null) {
 
         if(data.roll == 6 && data.figs.length < 4)
         {
+            nooptions = 1
             document.getElementById("buttonspawn").classList.add('buttongame');
             document.getElementById("buttonspawn").classList.remove('buttongamedisabled');
         }
@@ -43,6 +53,7 @@ if (document.querySelector('.game') !== null) {
 
         if(data.figs[0] != null){
             if(data.figs[0] + data.roll < 57){
+                nooptions = 1
                 document.getElementById("buttonfig1").classList.add('buttongame');
                 document.getElementById("buttonfig1").classList.remove('buttongamedisabled');
             }
@@ -50,6 +61,7 @@ if (document.querySelector('.game') !== null) {
 
         if(data.figs[1] != null){
             if(data.figs[1] + data.roll < 57){
+                nooptions = 1
                 document.getElementById("buttonfig2").classList.add('buttongame');
                 document.getElementById("buttonfig2").classList.remove('buttongamedisabled');
             }
@@ -57,6 +69,7 @@ if (document.querySelector('.game') !== null) {
 
         if(data.figs[2] != null){
             if(data.figs[2] + data.roll < 57){
+                nooptions = 1
                 document.getElementById("buttonfig3").classList.add('buttongame');
                 document.getElementById("buttonfig3").classList.remove('buttongamedisabled');
             }
@@ -64,9 +77,15 @@ if (document.querySelector('.game') !== null) {
 
         if(data.figs[3] != null){
             if(data.figs[3] + data.roll < 57){
+                nooptions = 1
                 document.getElementById("buttonfig4").classList.add('buttongame');
                 document.getElementById("buttonfig4").classList.remove('buttongamedisabled');
             }
+        }
+
+        if(nooptions == 0)
+        {
+            socket.emit('do-none',{userid: userid, roomid: roomid})
         }
     }
    })
@@ -237,6 +256,25 @@ if (document.querySelector('.game') !== null) {
             console.log(figs.length + "settext " + posdata.index + " " + posdata.text)
         }
 
+        if(data.redscore != null)
+        document.getElementById("redscore").innerHTML = data.redscore.toString()
+        else
+        document.getElementById("redscore").innerHTML = "0"
+
+        if(data.redscore != null)
+        document.getElementById("yellowscore").innerHTML = data.yellowscore.toString()
+        else
+        document.getElementById("yellowscore").innerHTML = "0"
+
+        if(data.redscore != null)
+        document.getElementById("bluescore").innerHTML = data.bluescore.toString()
+        else
+        document.getElementById("bluescore").innerHTML = "0"
+
+        if(data.redscore != null)
+        document.getElementById("greenscore").innerHTML = data.greenscore.toString()
+        else
+        document.getElementById("greenscore").innerHTML = "0"
 
 
         /*let fig = figs.getFigPos
@@ -288,7 +326,7 @@ if (document.querySelector('.game') !== null) {
             }else
             {
                 console.log("red fig win " + fig)
-                return {index: "r"+(index-51).toString(), text: '<div style="color: red; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
+                return {index: "r"+(fig-51).toString(), text: '<div style="color: red; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
             }
 
         }else if(color=="y")
@@ -300,11 +338,11 @@ if (document.querySelector('.game') !== null) {
             }else if(fig <= 51)
             {
                 console.log("yellow fig pos " + fig)
-                return {index: ((fig+39)%51).toString(), text: '<div style="color: yellow; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
+                return {index: ((fig+39)%52).toString(), text: '<div style="color: yellow; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
             }else
             {
                 console.log("yellow fig win " + fig)
-                return {index: "y"+(index-51).toString(), text: '<div style="color: yellow; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
+                return {index: "y"+(fig-51).toString(), text: '<div style="color: yellow; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
             }
 
         }else if(color=="b")
@@ -316,11 +354,11 @@ if (document.querySelector('.game') !== null) {
             }else if(fig <= 51)
             {
                 console.log("blue fig pos " + fig)
-                return {index: ((fig+26)%51).toString(), text: '<div style="color: blue; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
+                return {index: ((fig+26)%52).toString(), text: '<div style="color: blue; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
             }else
             {
                 console.log("blue fig win " + fig)
-                return {index: "b"+(index-51).toString(), text: index.toString()}
+                return {index: "b"+(fig-51).toString(), text: '<div style="color: blue; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
             }
 
         }else if(color=="g")
@@ -332,17 +370,22 @@ if (document.querySelector('.game') !== null) {
             }else if(fig <= 51)
             {
                 console.log("green fig pos " + fig)
-                return {index: ((fig+13)%51).toString(), text: '<div style="color: green; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
+                return {index: ((fig+13)%52).toString(), text: '<div style="color: green; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
             }else
             {
                 console.log("green fig win " + fig)
-                return {index: "g"+(index-51).toString(), text: '<div style="color: green; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
+                return {index: "g"+(fig-51).toString(), text: '<div style="color: green; font-size: 1.2vw;display: inline; font-weight: bolder;">' + index.toString() + '</div>'}
             }
 
         }
 
    }
 
+   socket.on("win", function(data){
+    console.log("!!!!!!!!!!!WIN!!!!!!!!!!!")
+    alert("GAME ENDED!\n\n1. " + data.place1 + "\n2. " + data.place2 + "\n3. " + data.place3 + "\n4. " + data.place4);
+    location.reload()
+    });
 
    function setIndexData(index, data, color){
 

@@ -69,7 +69,8 @@ router.get('/:id',async (req,res) => {
                     greenpos: [],
                     roomid: room.id,
                     gamecounter: 0,
-                    roll: 0
+                    roll: 0,
+                    wincount: 1
                 })
                 await game.save()
             }else{
