@@ -94,6 +94,10 @@ if (document.querySelector('.game') !== null) {
    {
         document.getElementById("buttonroll").classList.add('buttongamedisabled');
         document.getElementById("buttonroll").classList.remove('buttongame');
+
+        let audio = document.getElementById("sound")
+        audio.src = "/media/diceroll.mp3"
+        audio.play()
         
         socket.emit('do-roll',{userid: userid, roomid: roomid})
    }
@@ -383,6 +387,9 @@ if (document.querySelector('.game') !== null) {
 
    socket.on("win", function(data){
     console.log("!!!!!!!!!!!WIN!!!!!!!!!!!")
+    let audio = document.getElementById("sound")
+        audio.src = "/media/win.mp3"
+        audio.play()
     alert("GAME ENDED!\n\n1. " + data.place1 + "\n2. " + data.place2 + "\n3. " + data.place3 + "\n4. " + data.place4);
     location.reload()
     });
