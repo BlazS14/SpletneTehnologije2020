@@ -1387,13 +1387,13 @@ io.sockets.on('connection', function (socket) {
         abs = pos
       }else if(color == "y")
       {
-        abs = (pos+39)%51
+        abs = (pos+39)%52
       }else if(color == "b")
       {
-        abs = (pos+26)%51
+        abs = (pos+26)%52
       }else if(color == "g")
       {
-        abs = (pos+13)%51
+        abs = (pos+13)%52
       }
 
 
